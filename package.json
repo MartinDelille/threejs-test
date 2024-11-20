@@ -14,6 +14,7 @@
     "three": "^0.170.0"
   },
   "devDependencies": {
-    "http-server": "^14.1.1"
+    "http-server": "^14.1.1",
+    "vite": "^5.4.11"
   }
 }
