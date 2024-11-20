@@ -1,0 +1,19 @@
+{
+  "name": "threejs-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "http-server ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "live-server": "^1.2.2",
+    "three": "^0.170.0"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}
