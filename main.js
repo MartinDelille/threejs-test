@@ -16,6 +16,7 @@ camera.position.z = 5;
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true; // Enable shadow maps
+renderer.setAnimationLoop(animate);
 document.body.appendChild(renderer.domElement);
 
 // Create a cube and add it to the scene
@@ -37,14 +38,12 @@ scene.add(plane);
 
 // Create a light and add it to the scene
 const light = new THREE.PointLight(0xffffff, 1, 100);
-light.position.set(-10, 10, 10);
+light.position.set(0, 1, 1).normalize();
 light.castShadow = true; // Allow the light to cast shadows
 scene.add(light);
 
 // Create an animation loop
 function animate() {
-  requestAnimationFrame(animate);
-
   // Rotate the cube for some basic animation
   cube.rotation.x += 0.01;
   cube.rotation.y += 0.01;
@@ -52,6 +51,3 @@ function animate() {
   // Render the scene from the perspective of the camera
   renderer.render(scene, camera);
 }
-
-// Start the animation loop
-animate();
