@@ -1,53 +1,123 @@
 import * as THREE from "three";
 
-// Create the scene
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { Water } from "three/addons/objects/Water.js";
+import { Sky } from "three/addons/objects/Sky.js";
+
 const scene = new THREE.Scene();
 
-// Create a camera, which determines what we'll see when we render the scene
 const camera = new THREE.PerspectiveCamera(
-  75,
+  55,
   window.innerWidth / window.innerHeight,
-  0.1,
-  1000,
+  1,
+  20000,
 );
-camera.position.z = 5;
+camera.position.set(-30, 30, -100);
 
-// Create a renderer and attach it to our document
 const renderer = new THREE.WebGLRenderer();
+renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.shadowMap.enabled = true; // Enable shadow maps
 renderer.setAnimationLoop(animate);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.5;
 document.body.appendChild(renderer.domElement);
 
-// Create a cube and add it to the scene
-const geometry = new THREE.BoxGeometry();
-const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
-const cube = new THREE.Mesh(geometry, material);
-cube.castShadow = true; // Allow the cube to cast shadows
-cube.receiveShadow = true; // Allow the cube to receive shadows
-scene.add(cube);
+// Water
 
-// Create a plane to receive the shadow
-const planeGeometry = new THREE.PlaneGeometry(10, 10);
-const planeMaterial = new THREE.MeshStandardMaterial({ color: 0x808080 });
-const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-plane.rotation.x = -Math.PI / 2;
-plane.position.y = -1;
-plane.receiveShadow = true; // Allow the plane to receive shadows
-scene.add(plane);
+const waterGeometry = new THREE.PlaneGeometry(10000, 10000);
 
-// Create a light and add it to the scene
-const light = new THREE.PointLight(0xffffff, 1, 100);
-light.position.set(0, 1, 1).normalize();
-light.castShadow = true; // Allow the light to cast shadows
-scene.add(light);
+const water = new Water(waterGeometry, {
+  textureWidth: 512,
+  textureHeight: 512,
+  waterNormals: new THREE.TextureLoader().load(
+    "textures/waternormals.jpg",
+    function (texture) {
+      texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    },
+  ),
+  sunDirection: new THREE.Vector3(),
+  sunColor: 0xffffff,
+  waterColor: 0x001e0f,
+  distortionScale: 3.7,
+  fog: scene.fog !== undefined,
+});
 
-// Create an animation loop
+water.rotation.x = -Math.PI / 2;
+
+scene.add(water);
+
+// Skybox
+
+const sky = new Sky();
+sky.scale.setScalar(10000);
+scene.add(sky);
+
+const skyUniforms = sky.material.uniforms;
+
+skyUniforms["turbidity"].value = 10;
+skyUniforms["rayleigh"].value = 2;
+skyUniforms["mieCoefficient"].value = 0.005;
+skyUniforms["mieDirectionalG"].value = 0.8;
+
+const parameters = {
+  elevation: 2,
+  azimuth: 180,
+};
+
+const pmremGenerator = new THREE.PMREMGenerator(renderer);
+const sceneEnv = new THREE.Scene();
+
+let renderTarget;
+
+function updateSun(time) {
+  const azimuth = time % 360;
+  const elevation = 2 + Math.sin(time * 0.05) * 3;
+  const phi = THREE.MathUtils.degToRad(90 - elevation);
+  const theta = THREE.MathUtils.degToRad(azimuth);
+
+  const sun = new THREE.Vector3();
+  sun.setFromSphericalCoords(1, phi, theta);
+
+  sky.material.uniforms["sunPosition"].value.copy(sun);
+  water.material.uniforms["sunDirection"].value.copy(sun).normalize();
+
+  if (renderTarget !== undefined) renderTarget.dispose();
+
+  sceneEnv.add(sky);
+  renderTarget = pmremGenerator.fromScene(sceneEnv);
+  scene.add(sky);
+
+  scene.environment = renderTarget.texture;
+}
+
+updateSun(0);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.maxPolarAngle = Math.PI * 0.495;
+controls.target.set(0, 10, 0);
+controls.minDistance = 40.0;
+controls.maxDistance = 200.0;
+controls.update();
+
+window.addEventListener("resize", onWindowResize);
+
+function onWindowResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
 function animate() {
-  // Rotate the cube for some basic animation
-  cube.rotation.x += 0.01;
-  cube.rotation.y += 0.01;
+  render();
+}
 
-  // Render the scene from the perspective of the camera
+function render() {
+  const time = performance.now() * 0.001;
+
+  updateSun(time);
+
+  water.material.uniforms["time"].value += 1.0 / 60.0;
+
   renderer.render(scene, camera);
 }
