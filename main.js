@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { Water } from "three/addons/objects/Water.js";
 import { Sky } from "three/addons/objects/Sky.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 const scene = new THREE.Scene();
 
@@ -91,6 +92,18 @@ function updateSun(time) {
 }
 
 updateSun(0);
+
+const loader = new GLTFLoader();
+loader.load(
+  "boat.glb",
+  function (gltf) {
+    scene.add(gltf.scene);
+  },
+  undefined,
+  function (error) {
+    console.error(error);
+  },
+);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.maxPolarAngle = Math.PI * 0.495;
