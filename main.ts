@@ -60,11 +60,6 @@ skyUniforms["rayleigh"].value = 2;
 skyUniforms["mieCoefficient"].value = 0.005;
 skyUniforms["mieDirectionalG"].value = 0.8;
 
-const parameters = {
-  elevation: 2,
-  azimuth: 180,
-};
-
 const pmremGenerator = new THREE.PMREMGenerator(renderer);
 const sceneEnv = new THREE.Scene();
 
