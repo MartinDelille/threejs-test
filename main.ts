@@ -4,6 +4,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { Water } from "three/addons/objects/Water.js";
 import { Sky } from "three/addons/objects/Sky.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import * as Tone from "tone";
 
 const scene = new THREE.Scene();
 
@@ -59,11 +60,6 @@ skyUniforms["turbidity"].value = 10;
 skyUniforms["rayleigh"].value = 2;
 skyUniforms["mieCoefficient"].value = 0.005;
 skyUniforms["mieDirectionalG"].value = 0.8;
-
-const parameters = {
-  elevation: 2,
-  azimuth: 180,
-};
 
 const pmremGenerator = new THREE.PMREMGenerator(renderer);
 const sceneEnv = new THREE.Scene();
@@ -163,6 +159,34 @@ function onWindowResize() {
 
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
+
+// Create a wind sound using Tone.js
+const wind = new Tone.Noise("pink").start();
+const windFilter = new Tone.Filter(800, "lowpass").toDestination();
+wind.connect(windFilter);
+windFilter.frequency.rampTo(200, 20);
+
+// Set the volume of the wind sound
+const windVolume = new Tone.Volume(-20).toDestination();
+wind.connect(windVolume);
+
+// Function to update wind volume
+function updateWindVolume(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const value = parseFloat(input.value);
+  windVolume.volume.value = value;
+  Tone.Destination.mute = (value <= -60);
+}
+
+// Add event listener to the slider
+document.getElementById("wind-volume")?.addEventListener("input", updateWindVolume);
+
+// Start the Tone.js context on user interaction
+window.addEventListener("click", () => {
+  if (Tone.context.state !== "running") {
+    Tone.context.resume();
+  }
+});
 
 function animate() {
   if (boat) {
