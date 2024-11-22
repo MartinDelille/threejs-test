@@ -1,6 +1,7 @@
 {
   "name": "threejs-test",
   "version": "1.0.0",
+  "homepage": "https://martin.delille.org/three-js",
   "description": "",
   "main": "index.js",
   "scripts": {
