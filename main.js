@@ -91,13 +91,56 @@ function updateSun(time) {
   scene.environment = renderTarget.texture;
 }
 
+let boatDirection = new THREE.Vector3();
+let boatRotationSpeed = 0.05;
+let isMovingForward = false;
+let isMovingBackward = false;
+let isRotatingLeft = false;
+let isRotatingRight = false;
+
+window.addEventListener("keydown", function (event) {
+  switch (event.key) {
+    case "ArrowUp":
+      isMovingForward = true;
+      break;
+    case "ArrowDown":
+      isMovingBackward = true;
+      break;
+    case "ArrowLeft":
+      isRotatingLeft = true;
+      break;
+    case "ArrowRight":
+      isRotatingRight = true;
+      break;
+  }
+});
+
+window.addEventListener("keyup", function (event) {
+  switch (event.key) {
+    case "ArrowUp":
+      isMovingForward = false;
+      break;
+    case "ArrowDown":
+      isMovingBackward = false;
+      break;
+    case "ArrowLeft":
+      isRotatingLeft = false;
+      break;
+    case "ArrowRight":
+      isRotatingRight = false;
+      break;
+  }
+});
+
 updateSun(0);
 
+let boat;
 const loader = new GLTFLoader();
 loader.load(
   "boat.glb",
   function (gltf) {
-    scene.add(gltf.scene);
+    boat = gltf.scene;
+    scene.add(boat);
   },
   undefined,
   function (error) {
@@ -122,6 +165,22 @@ function onWindowResize() {
 }
 
 function animate() {
+  if (boat) {
+    if (isMovingForward) {
+      boatDirection.set(0, 0, -1).applyQuaternion(boat.quaternion);
+      boat.position.add(boatDirection);
+    }
+    if (isMovingBackward) {
+      boatDirection.set(0, 0, 1).applyQuaternion(boat.quaternion);
+      boat.position.add(boatDirection);
+    }
+    if (isRotatingLeft) {
+      boat.rotation.y += boatRotationSpeed;
+    }
+    if (isRotatingRight) {
+      boat.rotation.y -= boatRotationSpeed;
+    }
+  }
   render();
 }
 
