@@ -26,14 +26,33 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Setup Node.js environment
         uses: actions/setup-node@v4.1.0
         with:
           node-version: 22
+
       - name: Install dependencies
         run: npm install
+
+      - name: Cache Blender
+        id: cache-blender
+        uses: actions/cache@v3
+        with:
+          path: /usr/local/blender-4.3.0
+          key: blender-4.3.0-cache
+
+      - name: Install Blender
+        if: steps.cache-blender.outputs.cache-hit != 'true'
+        run: |
+          wget https://download.blender.org/release/Blender4.3/blender-4.3.0-linux-x64.tar.xz
+          tar -xvf blender-4.3.0-linux-x64.tar.xz
+          sudo mv blender-4.3.0-linux-x64 /usr/local/blender-4.3.0
+          sudo ln -s /usr/local/blender-4.3.0/blender /usr/local/bin/blender
+
       - name: Build the project
         run: npm run build
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
