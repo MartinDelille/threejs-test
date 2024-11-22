@@ -32,7 +32,7 @@ const water = new Water(waterGeometry, {
   textureHeight: 512,
   waterNormals: new THREE.TextureLoader().load(
     "textures/waternormals.jpg",
-    function (texture) {
+    function(texture) {
       texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
     },
   ),
@@ -68,9 +68,9 @@ const parameters = {
 const pmremGenerator = new THREE.PMREMGenerator(renderer);
 const sceneEnv = new THREE.Scene();
 
-let renderTarget;
+let renderTarget: THREE.WebGLRenderTarget;
 
-function updateSun(time) {
+function updateSun(time: number) {
   const azimuth = time % 360;
   const elevation = 2 + Math.sin(time * 0.05) * 3;
   const phi = THREE.MathUtils.degToRad(90 - elevation);
@@ -98,7 +98,7 @@ let isMovingBackward = false;
 let isRotatingLeft = false;
 let isRotatingRight = false;
 
-window.addEventListener("keydown", function (event) {
+window.addEventListener("keydown", function(event) {
   switch (event.key) {
     case "ArrowUp":
       isMovingForward = true;
@@ -115,7 +115,7 @@ window.addEventListener("keydown", function (event) {
   }
 });
 
-window.addEventListener("keyup", function (event) {
+window.addEventListener("keyup", function(event) {
   switch (event.key) {
     case "ArrowUp":
       isMovingForward = false;
@@ -134,16 +134,16 @@ window.addEventListener("keyup", function (event) {
 
 updateSun(0);
 
-let boat;
+let boat: THREE.Group;
 const loader = new GLTFLoader();
 loader.load(
   "boat.glb",
-  function (gltf) {
+  function(gltf) {
     boat = gltf.scene;
     scene.add(boat);
   },
   undefined,
-  function (error) {
+  function(error) {
     console.error(error);
   },
 );
