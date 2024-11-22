@@ -13,7 +13,8 @@
   "license": "ISC",
   "dependencies": {
     "live-server": "^1.2.2",
-    "three": "^0.170.0"
+    "three": "^0.170.0",
+    "tone": "^15.0.4"
   },
   "devDependencies": {
     "http-server": "^14.1.1",
