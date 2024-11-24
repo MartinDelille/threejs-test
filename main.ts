@@ -93,37 +93,51 @@ let isMovingForward = false;
 let isMovingBackward = false;
 let isRotatingLeft = false;
 let isRotatingRight = false;
+let isRotatingBomeRight = false;
+let isRotatingBomeLeft = false;
 
 window.addEventListener("keydown", function(event) {
   switch (event.key) {
-    case "ArrowUp":
+    case "w":
       isMovingForward = true;
       break;
-    case "ArrowDown":
+    case "s":
       isMovingBackward = true;
       break;
-    case "ArrowLeft":
+    case "a":
       isRotatingLeft = true;
       break;
-    case "ArrowRight":
+    case "d":
       isRotatingRight = true;
+      break;
+    case "j":
+      isRotatingBomeRight = true;
+      break;
+    case "k":
+      isRotatingBomeLeft = true;
       break;
   }
 });
 
 window.addEventListener("keyup", function(event) {
   switch (event.key) {
-    case "ArrowUp":
+    case "w":
       isMovingForward = false;
       break;
-    case "ArrowDown":
+    case "s":
       isMovingBackward = false;
       break;
-    case "ArrowLeft":
+    case "a":
       isRotatingLeft = false;
       break;
-    case "ArrowRight":
+    case "d":
       isRotatingRight = false;
+      break;
+    case "j":
+      isRotatingBomeRight = false;
+      break;
+    case "k":
+      isRotatingBomeLeft = false;
       break;
   }
 });
@@ -131,12 +145,14 @@ window.addEventListener("keyup", function(event) {
 updateSun(0);
 
 let boat: THREE.Group;
+let bone: THREE.Bone;
 const loader = new GLTFLoader();
 loader.load(
   "boat.glb",
   function(gltf) {
     boat = gltf.scene;
     scene.add(boat);
+    bone = boat.getObjectByName('BomeBone') as THREE.Bone;
   },
   undefined,
   function(error) {
@@ -203,6 +219,12 @@ function animate() {
     }
     if (isRotatingRight) {
       boat.rotation.y -= boatRotationSpeed;
+    }
+    if (isRotatingBomeRight) {
+      bone.rotation.z += Math.PI / 360;
+    }
+    if (isRotatingBomeLeft) {
+      bone.rotation.z -= Math.PI / 360;
     }
   }
   render();
