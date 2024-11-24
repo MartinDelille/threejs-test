@@ -131,11 +131,13 @@ window.addEventListener("keyup", function(event) {
 updateSun(0);
 
 let boat: THREE.Group;
+let bone: THREE.Bone;
 const loader = new GLTFLoader();
 loader.load(
   "boat.glb",
   function(gltf) {
     boat = gltf.scene;
+    bone = boat.getObjectByName('BomeBone');
     scene.add(boat);
   },
   undefined,
@@ -191,8 +193,9 @@ window.addEventListener("click", () => {
 function animate() {
   if (boat) {
     if (isMovingForward) {
-      boatDirection.set(0, 0, -1).applyQuaternion(boat.quaternion);
-      boat.position.add(boatDirection);
+      //boatDirection.set(0, 0, -1).applyQuaternion(boat.quaternion);
+      //boat.position.add(boatDirection);
+      bone.rotation.y = Math.PI / 2;
     }
     if (isMovingBackward) {
       boatDirection.set(0, 0, 1).applyQuaternion(boat.quaternion);
