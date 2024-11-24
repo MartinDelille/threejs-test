@@ -193,8 +193,9 @@ window.addEventListener("click", () => {
 function animate() {
   if (boat) {
     if (isMovingForward) {
-      boatDirection.set(0, 0, -1).applyQuaternion(boat.quaternion);
-      boat.position.add(boatDirection);
+      //boatDirection.set(0, 0, -1).applyQuaternion(boat.quaternion);
+      //boat.position.add(boatDirection);
+      bone.rotation.y = Math.PI / 2;
     }
     if (isMovingBackward) {
       boatDirection.set(0, 0, 1).applyQuaternion(boat.quaternion);
