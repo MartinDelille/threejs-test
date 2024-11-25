@@ -5,24 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Nautilus</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <style>
-      body {
-        margin: 0;
-      }
-      canvas {
-        display: block;
-      }
-    </style>
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <input
-      type="range"
-      id="wind-volume"
-      min="-60"
-      max="0"
-      value="-20"
-      step="1"
-    />
-    <script type="module" src="./main.ts"></script>
+    <script type="module" src="./src/main.ts"></script>
+    <div id="overlay">
+      <h3>HUD</h3>
+      <ul>
+        <li><strong>H</strong> - Show/Hide Keyboard Shortcuts</li>
+        <li><strong>W</strong> - Move Forward</li>
+        <li><strong>S</strong> - Move Backward</li>
+        <li><strong>A</strong> - Rotate Left</li>
+        <li><strong>D</strong> - Rotate Right</li>
+        <li><strong>J</strong> - Rotate Bome Right</li>
+        <li><strong>K</strong> - Rotate Bome Left</li>
+        <li><strong>M</strong> - Toggle Mute</li>
+      </ul>
+      <h4>Volume:</h4>
+      <input
+        type="range"
+        id="wind-volume"
+        min="-60"
+        max="0"
+        value="-20"
+        step="1"
+      />
+    </div>
   </body>
 </html>
