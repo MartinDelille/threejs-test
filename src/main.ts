@@ -3,8 +3,9 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { Water } from "three/addons/objects/Water.js";
 import { Sky } from "three/addons/objects/Sky.js";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import * as Tone from "tone";
+
+import { Boat } from "./boat";
 
 const scene = new THREE.Scene();
 
@@ -87,36 +88,14 @@ function updateSun(time: number) {
   scene.environment = renderTarget.texture;
 }
 
-let boatDirection = new THREE.Vector3();
-let boatRotationSpeed = 0.05;
-let isMovingForward = false;
-let isMovingBackward = false;
-let isRotatingLeft = false;
-let isRotatingRight = false;
-let isRotatingBomeRight = false;
-let isRotatingBomeLeft = false;
+const boat = new Boat(scene);
+boat.load("boat.glb");
+
 let overlayVisible = true;
 
 window.addEventListener("keydown", function(event) {
+  boat.setMovement(event.key, true);
   switch (event.key) {
-    case "w":
-      isMovingForward = true;
-      break;
-    case "s":
-      isMovingBackward = true;
-      break;
-    case "a":
-      isRotatingLeft = true;
-      break;
-    case "d":
-      isRotatingRight = true;
-      break;
-    case "j":
-      isRotatingBomeRight = true;
-      break;
-    case "k":
-      isRotatingBomeLeft = true;
-      break;
     case "h":
       overlayVisible = !overlayVisible;
       document.getElementById("overlay")!.style.display = overlayVisible ? "block" : "none";
@@ -128,45 +107,10 @@ window.addEventListener("keydown", function(event) {
 });
 
 window.addEventListener("keyup", function(event) {
-  switch (event.key) {
-    case "w":
-      isMovingForward = false;
-      break;
-    case "s":
-      isMovingBackward = false;
-      break;
-    case "a":
-      isRotatingLeft = false;
-      break;
-    case "d":
-      isRotatingRight = false;
-      break;
-    case "j":
-      isRotatingBomeRight = false;
-      break;
-    case "k":
-      isRotatingBomeLeft = false;
-      break;
-  }
+  boat.setMovement(event.key, false);
 });
 
 updateSun(0);
-
-let boat: THREE.Group;
-let bone: THREE.Bone;
-const loader = new GLTFLoader();
-loader.load(
-  "boat.glb",
-  function(gltf) {
-    boat = gltf.scene;
-    scene.add(boat);
-    bone = boat.getObjectByName('BomeBone') as THREE.Bone;
-  },
-  undefined,
-  function(error) {
-    console.error(error);
-  },
-);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.maxPolarAngle = Math.PI * 0.495;
@@ -212,28 +156,7 @@ window.addEventListener("click", () => {
 });
 
 function animate() {
-  if (boat) {
-    if (isMovingForward) {
-      boatDirection.set(0, 0, -1).applyQuaternion(boat.quaternion);
-      boat.position.add(boatDirection);
-    }
-    if (isMovingBackward) {
-      boatDirection.set(0, 0, 1).applyQuaternion(boat.quaternion);
-      boat.position.add(boatDirection);
-    }
-    if (isRotatingLeft) {
-      boat.rotation.y += boatRotationSpeed;
-    }
-    if (isRotatingRight) {
-      boat.rotation.y -= boatRotationSpeed;
-    }
-    if (isRotatingBomeRight) {
-      bone.rotation.z += Math.PI / 360;
-    }
-    if (isRotatingBomeLeft) {
-      bone.rotation.z -= Math.PI / 360;
-    }
-  }
+  boat.animate();
   render();
 }
 
