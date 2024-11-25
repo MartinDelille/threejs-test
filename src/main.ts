@@ -31,7 +31,7 @@ boat.load("boat.glb");
 
 let overlayVisible = true;
 
-window.addEventListener("keydown", function(event) {
+window.addEventListener("keydown", (event): void => {
   boat.setMovement(event.key, true);
   switch (event.key) {
     case "h":
@@ -44,7 +44,7 @@ window.addEventListener("keydown", function(event) {
   }
 });
 
-window.addEventListener("keyup", function(event) {
+window.addEventListener("keyup", (event) => {
   boat.setMovement(event.key, false);
 });
 
