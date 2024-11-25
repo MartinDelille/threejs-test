@@ -40,10 +40,10 @@ export class Environment {
 
     const skyUniforms = this.sky.material.uniforms;
 
-    skyUniforms["turbidity"].value = 10;
-    skyUniforms["rayleigh"].value = 2;
-    skyUniforms["mieCoefficient"].value = 0.005;
-    skyUniforms["mieDirectionalG"].value = 0.8;
+    skyUniforms.turbidity.value = 10;
+    skyUniforms.rayleigh.value = 2;
+    skyUniforms.mieCoefficient.value = 0.005;
+    skyUniforms.mieDirectionalG.value = 0.8;
 
     this.pmremGenerator = new THREE.PMREMGenerator(renderer);
     this.sceneEnv = new THREE.Scene();
@@ -58,8 +58,8 @@ export class Environment {
     const sun = new THREE.Vector3();
     sun.setFromSphericalCoords(1, phi, theta);
 
-    this.sky.material.uniforms["sunPosition"].value.copy(sun);
-    this.water.material.uniforms["sunDirection"].value.copy(sun).normalize();
+    this.sky.material.uniforms.sunPosition.value.copy(sun);
+    this.water.material.uniforms.sunDirection.value.copy(sun).normalize();
 
     if (this.renderTarget !== undefined) this.renderTarget.dispose();
 
@@ -71,11 +71,11 @@ export class Environment {
   }
 
   animateWater(): void {
-    this.water.material.uniforms["time"].value += 1.0 / 60.0;
+    this.water.material.uniforms.time.value += 1.0 / 60.0;
   }
 
   rotateWaterTexture(time: number, rotationSpeed: number): void {
-    this.water.material.uniforms["normalSampler"].value.matrix.identity()
+    this.water.material.uniforms.normalSampler.value.matrix.identity()
       .makeRotationZ(time * rotationSpeed);
   }
 }

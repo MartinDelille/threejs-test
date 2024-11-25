@@ -1,4 +1,4 @@
-default: s
+default: l
 
 install:
 	rm -rf venv node_modules
@@ -11,3 +11,6 @@ s:
 
 b:
 	npm run build
+
+l:
+	npx eslint  src/ vite.config.ts --fix
