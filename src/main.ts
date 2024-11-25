@@ -1,11 +1,10 @@
 import * as THREE from "three";
 
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { Water } from "three/addons/objects/Water.js";
-import { Sky } from "three/addons/objects/Sky.js";
 import * as Tone from "tone";
 
 import { Boat } from "./boat";
+import { Environment } from "./environment";
 
 const scene = new THREE.Scene();
 
@@ -25,68 +24,7 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 0.5;
 document.body.appendChild(renderer.domElement);
 
-// Water
-
-const waterGeometry = new THREE.PlaneGeometry(10000, 10000);
-
-const water = new Water(waterGeometry, {
-  textureWidth: 512,
-  textureHeight: 512,
-  waterNormals: new THREE.TextureLoader().load(
-    "textures/waternormals.jpg",
-    function(texture: THREE.Texture) {
-      texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-    },
-  ),
-  sunDirection: new THREE.Vector3(),
-  sunColor: 0xffffff,
-  waterColor: 0x001e0f,
-  distortionScale: 3.7,
-  fog: scene.fog !== undefined,
-});
-
-water.rotation.x = -Math.PI / 2;
-
-scene.add(water);
-
-// Skybox
-
-const sky = new Sky();
-sky.scale.setScalar(10000);
-scene.add(sky);
-
-const skyUniforms = sky.material.uniforms;
-
-skyUniforms["turbidity"].value = 10;
-skyUniforms["rayleigh"].value = 2;
-skyUniforms["mieCoefficient"].value = 0.005;
-skyUniforms["mieDirectionalG"].value = 0.8;
-
-const pmremGenerator = new THREE.PMREMGenerator(renderer);
-const sceneEnv = new THREE.Scene();
-
-let renderTarget: THREE.WebGLRenderTarget;
-
-function updateSun(time: number) {
-  const azimuth = time % 360;
-  const elevation = 2 + Math.sin(time * 0.05) * 3;
-  const phi = THREE.MathUtils.degToRad(90 - elevation);
-  const theta = THREE.MathUtils.degToRad(azimuth);
-
-  const sun = new THREE.Vector3();
-  sun.setFromSphericalCoords(1, phi, theta);
-
-  sky.material.uniforms["sunPosition"].value.copy(sun);
-  water.material.uniforms["sunDirection"].value.copy(sun).normalize();
-
-  if (renderTarget !== undefined) renderTarget.dispose();
-
-  sceneEnv.add(sky);
-  renderTarget = pmremGenerator.fromScene(sceneEnv);
-  scene.add(sky);
-
-  scene.environment = renderTarget.texture;
-}
+const environment = new Environment(scene, renderer);
 
 const boat = new Boat(scene);
 boat.load("boat.glb");
@@ -110,7 +48,6 @@ window.addEventListener("keyup", function(event) {
   boat.setMovement(event.key, false);
 });
 
-updateSun(0);
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.maxPolarAngle = Math.PI * 0.495;
@@ -157,15 +94,12 @@ window.addEventListener("click", () => {
 
 function animate() {
   boat.animate();
+  environment.animate();
   render();
 }
 
 function render() {
-  const time = performance.now() * 0.001;
 
-  updateSun(time);
-
-  water.material.uniforms["time"].value += 1.0 / 60.0;
 
   renderer.render(scene, camera);
 }
