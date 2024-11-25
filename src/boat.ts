@@ -2,27 +2,48 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 export class Boat {
-  private boat: THREE.Group | undefined;
-  private bone: THREE.Bone | undefined;
+  private _model: THREE.Group | undefined;
+  private _bone: THREE.Bone | undefined;
   private boatDirection: THREE.Vector3 = new THREE.Vector3();
   private boatRotationSpeed: number = 0.05;
-  private isMovingForward: boolean = false;
-  private isMovingBackward: boolean = false;
-  private isRotatingLeft: boolean = false;
-  private isRotatingRight: boolean = false;
-  private isRotatingBomeRight: boolean = false;
-  private isRotatingBomeLeft: boolean = false;
+  private speed: number = 0;
+  private rotationSpeed: number = 0;
+  private bomeRotationSpeed: number = 0;
 
-  constructor(private scene: THREE.Scene) { }
+  private keyActionMap: { [key: string]: (value: boolean) => void } = {
+    "w": (value) => this.speed = value ? 1 : 0,
+    "s": (value) => this.speed = value ? -1 : 0,
+    "a": (value) => this.rotationSpeed = value ? 0.02 : 0,
+    "d": (value) => this.rotationSpeed = value ? -0.02 : 0,
+    "j": (value) => this.bomeRotationSpeed = value ? Math.PI / 360 : 0,
+    "k": (value) => this.bomeRotationSpeed = value ? -Math.PI / 360 : 0,
+  };
+
+  constructor(private scene: THREE.Scene) {
+    this.initKeyboardListeners();
+  }
+
+  private initKeyboardListeners(): void {
+    window.addEventListener("keydown", (event) => this.handleKeyDown(event));
+    window.addEventListener("keyup", (event) => this.handleKeyUp(event));
+  }
+
+  private handleKeyDown(event: KeyboardEvent): void {
+    this.setMovement(event.key, true);
+  }
+
+  private handleKeyUp(event: KeyboardEvent): void {
+    this.setMovement(event.key, false);
+  }
 
   load(filePath: string): void {
     const loader = new GLTFLoader();
     loader.load(
       filePath,
       (gltf) => {
-        this.boat = gltf.scene;
-        this.scene.add(this.boat);
-        this.bone = this.boat.getObjectByName("BomeBone") as THREE.Bone;
+        this._model = gltf.scene;
+        this.scene.add(this._model);
+        this._bone = this._model.getObjectByName("BomeBone") as THREE.Bone;
       },
       undefined,
       (error) => {
@@ -32,50 +53,20 @@ export class Boat {
   }
 
   setMovement(key: string, value: boolean): void {
-    switch (key) {
-      case "w":
-        this.isMovingForward = value;
-        break;
-      case "s":
-        this.isMovingBackward = value;
-        break;
-      case "a":
-        this.isRotatingLeft = value;
-        break;
-      case "d":
-        this.isRotatingRight = value;
-        break;
-      case "j":
-        this.isRotatingBomeRight = value;
-        break;
-      case "k":
-        this.isRotatingBomeLeft = value;
-        break;
+    const action = this.keyActionMap[key];
+    if (action) {
+      action(value);
     }
   }
 
   animate(): void {
-    if (this.boat) {
-      if (this.isMovingForward) {
-        this.boatDirection.set(0, 0, -1).applyQuaternion(this.boat.quaternion);
-        this.boat.position.add(this.boatDirection);
-      }
-      if (this.isMovingBackward) {
-        this.boatDirection.set(0, 0, 1).applyQuaternion(this.boat.quaternion);
-        this.boat.position.add(this.boatDirection);
-      }
-      if (this.isRotatingLeft) {
-        this.boat.rotation.y += this.boatRotationSpeed;
-      }
-      if (this.isRotatingRight) {
-        this.boat.rotation.y -= this.boatRotationSpeed;
-      }
-      if (this.isRotatingBomeRight && this.bone) {
-        this.bone.rotation.z += Math.PI / 360;
-      }
-      if (this.isRotatingBomeLeft && this.bone) {
-        this.bone.rotation.z -= Math.PI / 360;
-      }
+    if (this._model) {
+      this.boatDirection.set(0, 0, this.speed).applyQuaternion(this._model.quaternion);
+      this._model.position.add(this.boatDirection);
+      this._model.rotation.y += this.rotationSpeed;
+    }
+    if (this._bone) {
+      this._bone.rotation.z += this.bomeRotationSpeed;
     }
   }
 }
