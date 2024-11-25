@@ -95,6 +95,7 @@ let isRotatingLeft = false;
 let isRotatingRight = false;
 let isRotatingBomeRight = false;
 let isRotatingBomeLeft = false;
+let overlayVisible = true;
 
 window.addEventListener("keydown", function(event) {
   switch (event.key) {
@@ -115,6 +116,13 @@ window.addEventListener("keydown", function(event) {
       break;
     case "k":
       isRotatingBomeLeft = true;
+      break;
+    case "h":
+      overlayVisible = !overlayVisible;
+      document.getElementById("overlay")!.style.display = overlayVisible ? "block" : "none";
+      break;
+    case "m":
+      Tone.Destination.mute = !Tone.Destination.mute;
       break;
   }
 });
@@ -191,7 +199,6 @@ function updateWindVolume(event: Event) {
   const input = event.target as HTMLInputElement;
   const value = parseFloat(input.value);
   windVolume.volume.value = value;
-  Tone.Destination.mute = (value <= -60);
 }
 
 // Add event listener to the slider
