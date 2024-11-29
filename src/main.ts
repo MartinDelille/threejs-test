@@ -87,8 +87,8 @@ window.addEventListener("click", () => {
 });
 
 function animate() {
-  boat.animate();
   environment.animate();
+  boat.animate();
   render();
 }
 
