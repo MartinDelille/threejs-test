@@ -1,6 +1,7 @@
 import * as THREE from "three";
 
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import * as CANNON from "cannon-es";
 import * as Tone from "tone";
 
 import { Boat } from "./boat";
@@ -24,9 +25,10 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 0.5;
 document.body.appendChild(renderer.domElement);
 
-const environment = new Environment(scene, renderer);
+const world = new CANNON.World();
+const environment = new Environment(scene, renderer, world);
 
-const boat = new Boat(scene);
+const boat = new Boat(scene, world);
 boat.load("boat.glb");
 
 let overlayVisible = true;
@@ -87,6 +89,7 @@ window.addEventListener("click", () => {
 });
 
 function animate() {
+  world.step(1 / 60);
   environment.animate();
   boat.animate();
   render();

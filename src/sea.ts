@@ -1,10 +1,11 @@
 import * as THREE from "three";
 import { Water } from "three/addons/objects/Water.js";
+import * as CANNON from "cannon-es";
 
 export class Sea {
   private _water: Water;
 
-  constructor(private scene: THREE.Scene) {
+  constructor(private scene: THREE.Scene, private world: World) {
     const waterGeometry = new THREE.PlaneGeometry(1000, 1000, 1000, 1000);
 
     this._water = new Water(waterGeometry, {
@@ -25,6 +26,18 @@ export class Sea {
     this._water.rotation.x = -Math.PI / 2;
 
     scene.add(this._water);
+
+    const material = new CANNON.Material("water");
+    material.friction = 0.3;
+    const planeShape = new CANNON.Plane();
+    const planeBody = new CANNON.Body({
+      mass: 0,
+      position: new CANNON.Vec3(0, -1, 0),
+      shape: planeShape,
+      material: material,
+    });
+    planeBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
+    world.addBody(planeBody);
   }
 
   animate(time: number, sun: THREE.Vector3): void {

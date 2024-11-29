@@ -10,7 +10,7 @@ export class Environment {
   private _renderTarget: THREE.WebGLRenderTarget | undefined;
   private _sea: Sea;
 
-  constructor(private scene: THREE.Scene, private renderer: THREE.WebGLRenderer) {
+  constructor(private scene: THREE.Scene, private renderer: THREE.WebGLRenderer, private world: World) {
     // Skybox
 
     this._sky = new Sky();
@@ -27,7 +27,9 @@ export class Environment {
     this._pmremGenerator = new THREE.PMREMGenerator(renderer);
     this._sceneEnv = new THREE.Scene();
 
-    this._sea = new Sea(scene);
+    world.gravity.set(0, -9.82, 0);
+
+    this._sea = new Sea(scene, world);
   }
 
   animate(): void {
