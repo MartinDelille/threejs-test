@@ -40,7 +40,7 @@ export class Boat {
     const loader = new GLTFLoader();
     loader.load(
       filePath,
-      (gltf) => {
+      (gltf: GLTF) => {
         this._model = gltf.scene;
         this.scene.add(this._model);
         this._bone = this._model.getObjectByName("BomeBone") as THREE.Bone;

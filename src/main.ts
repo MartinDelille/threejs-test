@@ -32,7 +32,6 @@ boat.load("boat.glb");
 let overlayVisible = true;
 
 window.addEventListener("keydown", (event): void => {
-  boat.setMovement(event.key, true);
   switch (event.key) {
     case "h":
       overlayVisible = !overlayVisible;
@@ -43,11 +42,6 @@ window.addEventListener("keydown", (event): void => {
       break;
   }
 });
-
-window.addEventListener("keyup", (event) => {
-  boat.setMovement(event.key, false);
-});
-
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.maxPolarAngle = Math.PI * 0.495;
@@ -99,7 +93,5 @@ function animate() {
 }
 
 function render() {
-
-
   renderer.render(scene, camera);
 }
