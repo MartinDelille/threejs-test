@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "cannon-es": "^0.20.0",
     "live-server": "^1.2.2",
     "three": "^0.170.0",
     "tone": "^15.0.4"

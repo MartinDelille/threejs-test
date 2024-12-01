@@ -26,6 +26,9 @@ export default defineConfig(() => {
       outDir: "dist",
       assetsDir: "assets"
     },
+    server: {
+      port: 8192,
+    },
     async buildStart() {
       runBlenderScript();
     },
