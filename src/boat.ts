@@ -2,6 +2,8 @@ import * as THREE from "three";
 import * as CANNON from "cannon-es";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
+import { Sea } from "./sea";
+
 export class Boat {
   private _model: THREE.Group | undefined;
   private _bone: THREE.Bone | undefined;
@@ -10,7 +12,7 @@ export class Boat {
   private _bomeRotationSpeed: number = 0;
   private _boatBody: CANNON.Body;
 
-  constructor(private scene: THREE.Scene, private world: World) {
+  constructor(private scene: THREE.Scene, private world: CANNON.World) {
     this.initKeyboardListeners();
     const cubeShape = new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5));
     const material = new CANNON.Material("boatMaterial");
@@ -21,6 +23,8 @@ export class Boat {
       shape: cubeShape,
       material: material,
     });
+    this._boatBody.linearDamping = 0.8; // Adjust this value as needed
+    this._boatBody.angularDamping = 0.3; // Adjust this value as needed
     world.addBody(this._boatBody);
   }
 
@@ -74,6 +78,12 @@ export class Boat {
         this._bomeRotationSpeed = value ? -Math.PI / 360 : 0;
         break;
     }
+  }
+
+  applyBuoyancy(sea: Sea, time: number): void {
+    const waterHeight = sea.getWaterHeightAt(this._boatBody.position.x, this._boatBody.position.z, time);
+    const buoyancyForce = 8 * (waterHeight - this._boatBody.position.y);
+    this._boatBody.applyForce(new CANNON.Vec3(0, buoyancyForce, 0));//, this._boatBody.position);
   }
 
   animate(): void {

@@ -32,8 +32,11 @@ export class Environment {
     this._sea = new Sea(scene, world);
   }
 
-  animate(): void {
-    const time = performance.now() * 0.001;
+  get sea(): Sea {
+    return this._sea;
+  }
+
+  animate(time: number): void {
     const azimuth = time % 360;
     const elevation = 2 + Math.sin(time * 0.05) * 3;
     const phi = THREE.MathUtils.degToRad(90 - elevation);

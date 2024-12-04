@@ -1,11 +1,17 @@
 import * as THREE from "three";
 import { Water } from "three/addons/objects/Water.js";
-import * as CANNON from "cannon-es";
 
 export class Sea {
   private _water: Water;
+  private _cosAngle: number;
+  private _sinAngle: number;
+  private _period = 80;
+  private _waveHeight = 12;
 
   constructor(private scene: THREE.Scene, private world: World) {
+    const waveAngle: number = Math.PI / 9;
+    this._cosAngle = Math.cos(waveAngle);
+    this._sinAngle = Math.sin(waveAngle);
     const waterGeometry = new THREE.PlaneGeometry(1000, 1000, 1000, 1000);
 
     this._water = new Water(waterGeometry, {
@@ -26,34 +32,22 @@ export class Sea {
     this._water.rotation.x = -Math.PI / 2;
 
     scene.add(this._water);
+  }
 
-    const material = new CANNON.Material("water");
-    material.friction = 0.3;
-    const planeShape = new CANNON.Plane();
-    const planeBody = new CANNON.Body({
-      mass: 0,
-      position: new CANNON.Vec3(0, -1, 0),
-      shape: planeShape,
-      material: material,
-    });
-    planeBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
-    world.addBody(planeBody);
+  getWaterHeightAt(x: number, z: number, time: number): number {
+    const rotatedX = x * this._cosAngle - z * this._sinAngle;
+    return Math.sin(rotatedX / this._period + time) * this._waveHeight;
   }
 
   animate(time: number, sun: THREE.Vector3): void {
     this._water.material.uniforms.sunDirection.value.copy(sun).normalize();
 
     const vertices = this._water.geometry.attributes.position.array;
-    const waveAngle = Math.PI / 9;
-    const cosAngle = Math.cos(waveAngle);
-    const sinAngle = Math.sin(waveAngle);
 
     for (let i = 0; i < vertices.length; i += 3) {
       const x = vertices[i];
       const y = vertices[i + 1];
-      const period = 0.05;
-      const rotatedX = x * cosAngle - y * sinAngle;
-      vertices[i + 2] = Math.sin(rotatedX * period + time) * 4;
+      vertices[i + 2] = this.getWaterHeightAt(x, y, time);
     }
 
     this._water.geometry.attributes.position.needsUpdate = true;

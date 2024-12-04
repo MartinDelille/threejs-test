@@ -89,8 +89,10 @@ window.addEventListener("click", () => {
 });
 
 function animate() {
+  const time = performance.now() * 0.001;
   world.step(1 / 60);
-  environment.animate();
+  environment.animate(time);
+  boat.applyBuoyancy(environment.sea, time);
   boat.animate();
   render();
 }
