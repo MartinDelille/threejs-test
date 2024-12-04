@@ -1,26 +1,31 @@
 import * as THREE from "three";
+import * as CANNON from "cannon-es";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+
+import { Sea } from "./sea";
 
 export class Boat {
   private _model: THREE.Group | undefined;
   private _bone: THREE.Bone | undefined;
-  private boatDirection: THREE.Vector3 = new THREE.Vector3();
-  private boatRotationSpeed: number = 0.05;
-  private speed: number = 0;
-  private rotationSpeed: number = 0;
-  private bomeRotationSpeed: number = 0;
+  private _speed: number = 0;
+  private _rotationSpeed: number = 0;
+  private _bomeRotationSpeed: number = 0;
+  private _boatBody: CANNON.Body;
 
-  private keyActionMap: { [key: string]: (value: boolean) => void } = {
-    "w": (value) => this.speed = value ? 1 : 0,
-    "s": (value) => this.speed = value ? -1 : 0,
-    "a": (value) => this.rotationSpeed = value ? 0.02 : 0,
-    "d": (value) => this.rotationSpeed = value ? -0.02 : 0,
-    "j": (value) => this.bomeRotationSpeed = value ? Math.PI / 360 : 0,
-    "k": (value) => this.bomeRotationSpeed = value ? -Math.PI / 360 : 0,
-  };
-
-  constructor(private scene: THREE.Scene) {
+  constructor(private scene: THREE.Scene, private world: CANNON.World) {
     this.initKeyboardListeners();
+    const cubeShape = new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5));
+    const material = new CANNON.Material("boatMaterial");
+    material.friction = 0.01
+    this._boatBody = new CANNON.Body({
+      mass: 1, // kg
+      position: new CANNON.Vec3(0, 5, 0),
+      shape: cubeShape,
+      material: material,
+    });
+    this._boatBody.linearDamping = 0.8; // Adjust this value as needed
+    this._boatBody.angularDamping = 0.3; // Adjust this value as needed
+    world.addBody(this._boatBody);
   }
 
   private initKeyboardListeners(): void {
@@ -40,7 +45,7 @@ export class Boat {
     const loader = new GLTFLoader();
     loader.load(
       filePath,
-      (gltf) => {
+      (gltf: GLTF) => {
         this._model = gltf.scene;
         this.scene.add(this._model);
         this._bone = this._model.getObjectByName("BomeBone") as THREE.Bone;
@@ -53,20 +58,51 @@ export class Boat {
   }
 
   setMovement(key: string, value: boolean): void {
-    const action = this.keyActionMap[key];
-    if (action) {
-      action(value);
+    switch (key) {
+      case "w":
+        this._speed = value ? 1 : 0;
+        break;
+      case "s":
+        this._speed = value ? -1 : 0;
+        break;
+      case "a":
+        this._rotationSpeed = value ? 1 : 0;
+        break;
+      case "d":
+        this._rotationSpeed = value ? -1 : 0;
+        break;
+      case "j":
+        this._bomeRotationSpeed = value ? Math.PI / 360 : 0;
+        break;
+      case "k":
+        this._bomeRotationSpeed = value ? -Math.PI / 360 : 0;
+        break;
     }
+  }
+
+  applyBuoyancy(sea: Sea, time: number): void {
+    const waterHeight = sea.getWaterHeightAt(this._boatBody.position.x, this._boatBody.position.z, time);
+    const buoyancyForce = 8 * (waterHeight - this._boatBody.position.y);
+    this._boatBody.applyForce(new CANNON.Vec3(0, buoyancyForce, 0));//, this._boatBody.position);
   }
 
   animate(): void {
     if (this._model) {
-      this.boatDirection.set(0, 0, this.speed).applyQuaternion(this._model.quaternion);
-      this._model.position.add(this.boatDirection);
-      this._model.rotation.y += this.rotationSpeed;
+      // Calculate the forward direction
+      const forward = new THREE.Vector3(0, 0, 1);
+      forward.applyQuaternion(this._model.quaternion);
+      forward.normalize();
+
+      const factor = 20;
+      // Apply the velocity in the forward direction
+      this._boatBody.velocity.set(forward.x * this._speed * factor, this._boatBody.velocity.y, forward.z * this._speed * factor);
+      this._boatBody.angularVelocity.set(0, this._rotationSpeed * 1, 0);
+
+      this._model.position.copy(this._boatBody.position);
+      this._model.quaternion.copy(this._boatBody.quaternion);
     }
     if (this._bone) {
-      this._bone.rotation.z += this.bomeRotationSpeed;
+      this._bone.rotation.z += this._bomeRotationSpeed;
     }
   }
 }

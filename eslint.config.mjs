@@ -11,7 +11,7 @@ export default [
   {
     rules: {
       quotes: ["error", "double"],
+      "no-multiple-empty-lines": ["error", { max: 1 }],
     },
   },
 ];
-

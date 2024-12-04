@@ -1,6 +1,7 @@
 import * as THREE from "three";
 
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import * as CANNON from "cannon-es";
 import * as Tone from "tone";
 
 import { Boat } from "./boat";
@@ -24,15 +25,15 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 0.5;
 document.body.appendChild(renderer.domElement);
 
-const environment = new Environment(scene, renderer);
+const world = new CANNON.World();
+const environment = new Environment(scene, renderer, world);
 
-const boat = new Boat(scene);
+const boat = new Boat(scene, world);
 boat.load("boat.glb");
 
 let overlayVisible = true;
 
 window.addEventListener("keydown", (event): void => {
-  boat.setMovement(event.key, true);
   switch (event.key) {
     case "h":
       overlayVisible = !overlayVisible;
@@ -43,11 +44,6 @@ window.addEventListener("keydown", (event): void => {
       break;
   }
 });
-
-window.addEventListener("keyup", (event) => {
-  boat.setMovement(event.key, false);
-});
-
 
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.maxPolarAngle = Math.PI * 0.495;
@@ -93,13 +89,14 @@ window.addEventListener("click", () => {
 });
 
 function animate() {
+  const time = performance.now() * 0.001;
+  world.step(1 / 60);
+  environment.animate(time);
+  boat.applyBuoyancy(environment.sea, time);
   boat.animate();
-  environment.animate();
   render();
 }
 
 function render() {
-
-
   renderer.render(scene, camera);
 }
