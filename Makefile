@@ -13,4 +13,4 @@ b:
 	npm run build
 
 l:
-	npx eslint  src/ vite.config.ts --fix
+	npx eslint  src/ vite.config.mts --fix
