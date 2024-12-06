@@ -8,6 +8,8 @@ import { Boat } from "./boat";
 import { Environment } from "./environment";
 
 const scene = new THREE.Scene();
+const axesHelper = new THREE.AxesHelper(50);
+//scene.add(axesHelper);
 
 const camera = new THREE.PerspectiveCamera(
   55,
@@ -92,8 +94,7 @@ function animate() {
   const time = performance.now() * 0.001;
   world.step(1 / 60);
   environment.animate(time);
-  boat.applyBuoyancy(environment.sea, time);
-  boat.animate();
+  boat.animate(environment.sea, time);
   render();
 }
 
