@@ -5,8 +5,8 @@ export class Sea {
   private _water: Water;
   private _cosAngle: number;
   private _sinAngle: number;
-  private _period = 80;
-  private _waveHeight = 12;
+  private _period = 180;
+  private _waveHeight = 8;
 
   constructor(private scene: THREE.Scene, private world: World) {
     const waveAngle: number = Math.PI / 9;

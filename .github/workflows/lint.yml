@@ -19,4 +19,4 @@ jobs:
         run: npm install
 
       - name: Run TSLint
-        run: npx eslint src/ vite.config.ts
+        run: npx eslint src/ vite.config.mts
