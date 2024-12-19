@@ -2,7 +2,7 @@ import * as THREE from "three";
 import * as CANNON from "cannon-es";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
-import { Sea } from "./sea";
+import { Sea } from "./Sea";
 
 export class Boat {
   private _model: THREE.Group | undefined;

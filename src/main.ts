@@ -4,8 +4,8 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import * as CANNON from "cannon-es";
 import * as Tone from "tone";
 
-import { Boat } from "./boat";
-import { Environment } from "./environment";
+import { Boat } from "./Boat";
+import { Environment } from "./Environment";
 
 const scene = new THREE.Scene();
 
