@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { Sky } from "three/addons/objects/Sky.js";
+import { Sky } from "three/examples/jsm/objects/Sky";
 
 import { Sea } from "./sea";
 
