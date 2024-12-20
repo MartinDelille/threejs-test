@@ -3,11 +3,16 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import * as CANNON from "cannon-es";
 import * as Tone from "tone";
+import { GUI } from "lil-gui";
 
 import { Boat } from "./Boat";
 import { Environment } from "./Environment";
 
+const gui = new GUI();
+
 const scene = new THREE.Scene();
+const axesHelper = new THREE.AxesHelper(50);
+//scene.add(axesHelper);
 
 const camera = new THREE.PerspectiveCamera(
   55,
@@ -26,7 +31,7 @@ renderer.toneMappingExposure = 0.5;
 document.body.appendChild(renderer.domElement);
 
 const world = new CANNON.World();
-const environment = new Environment(scene, renderer, world);
+const environment = new Environment(gui, scene, renderer, world);
 
 const boat = new Boat(scene, world);
 boat.load("boat.glb");
@@ -49,7 +54,7 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.maxPolarAngle = Math.PI * 0.495;
 controls.target.set(0, 10, 0);
 controls.minDistance = 40.0;
-controls.maxDistance = 200.0;
+controls.maxDistance = 1000.0;
 controls.update();
 
 window.addEventListener("resize", onWindowResize);
@@ -92,8 +97,7 @@ function animate() {
   const time = performance.now() * 0.001;
   world.step(1 / 60);
   environment.animate(time);
-  boat.applyBuoyancy(environment.sea, time);
-  boat.animate();
+  boat.animate(environment.sea, time);
   render();
 }
 

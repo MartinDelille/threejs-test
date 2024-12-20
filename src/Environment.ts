@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { Sky } from "three/examples/jsm/objects/Sky";
+import { GUI } from "lil-gui";
 
 import { Sea } from "./sea";
 
@@ -9,8 +10,13 @@ export class Environment {
   private _sceneEnv: THREE.Scene;
   private _renderTarget: THREE.WebGLRenderTarget | undefined;
   private _sea: Sea;
+  private _sunInitialAzimuth = 0;
+  private _sunMediumElevation = 45;
 
-  constructor(private scene: THREE.Scene, private renderer: THREE.WebGLRenderer, private world: World) {
+  constructor(private gui: GUI,
+    private scene: THREE.Scene,
+    private renderer: THREE.WebGLRenderer,
+    private world: World) {
     // Skybox
 
     this._sky = new Sky();
@@ -29,7 +35,11 @@ export class Environment {
 
     world.gravity.set(0, -9.82, 0);
 
-    this._sea = new Sea(scene, world);
+    this._sea = new Sea(scene);
+
+    let envGui = gui.addFolder("Environment")
+    envGui.add(this, "_sunInitialAzimuth", 0, 360).name("Sun Azimuth");
+    envGui.add(this, "_sunMediumElevation", 0, 90).name("Sun Elevation");
   }
 
   get sea(): Sea {
@@ -37,8 +47,8 @@ export class Environment {
   }
 
   animate(time: number): void {
-    const azimuth = time % 360;
-    const elevation = 2 + Math.sin(time * 0.05) * 3;
+    const azimuth = (this._sunInitialAzimuth + time) % 360;
+    const elevation = this._sunMediumElevation + Math.sin(time * 0.05) * 3;
     const phi = THREE.MathUtils.degToRad(90 - elevation);
     const theta = THREE.MathUtils.degToRad(azimuth);
 
